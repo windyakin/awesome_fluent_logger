@@ -31,7 +31,13 @@ module AwesomeFluentLogger
         end
       end
 
-      @logger.post(@tag, format_message(format_severity(severity), Time.now, progname, message))
+      data = format_message(format_severity(severity), Time.now, progname, message)
+
+      unless data.is_a?(Hash)
+        data = {data: data}
+      end
+
+      @logger.post(@tag, data)
       true
     end
 
