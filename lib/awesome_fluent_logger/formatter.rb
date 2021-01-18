@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'logger/formatter'
+require 'logger'
 
 module AwesomeFluentLogger
   class Formatter < ::Logger::Formatter
