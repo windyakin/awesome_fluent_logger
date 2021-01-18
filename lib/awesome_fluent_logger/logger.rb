@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'fluent-logger'
-require 'awesome_fluent_logger/formatter'
+require 'logger'
 
 module AwesomeFluentLogger
   class Logger < ::Logger

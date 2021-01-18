@@ -14,7 +14,7 @@ module AwesomeFluentLogger
     end
 
     protected
-    
+
     def format_datetime(time)
       time.strftime(@datetime_format || "%Y-%m-%d %H:%M:%S.%6N %z")
     end
