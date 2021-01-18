@@ -7,8 +7,6 @@ module AwesomeFluentLogger
   class Logger < ::Logger
     def initialize(logger, level: DEBUG, progname: nil, formatter: nil, datetime_format: nil, tag: nil)
       super(nil, 0, 0, level: level, progname: progname, formatter: formatter, datetime_format: datetime_format)
-      raise ArgumentError unless logger.respond_to?(:post)
-      raise FluentConnectionError unless logger.connect?
       @logger = logger
       @default_formatter = Formatter.new
       @tag = tag || progname
