@@ -16,6 +16,7 @@ module AwesomeFluentLogger
         raise ArgumentError
       end
       @default_formatter = Formatter.new
+      @default_formatter.datetime_format = datetime_format
       @tag = fluent[:tag_prefix] || progname
     end
 
