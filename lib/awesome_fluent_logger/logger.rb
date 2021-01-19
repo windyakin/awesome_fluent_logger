@@ -7,7 +7,13 @@ module AwesomeFluentLogger
   class Logger < ::Logger
     def initialize(logger, level: DEBUG, progname: nil, formatter: nil, datetime_format: nil, tag: nil)
       super(nil, 0, 0, level: level, progname: progname, formatter: formatter, datetime_format: datetime_format)
-      @logger = logger
+      if logger.is_a?(Hash)
+        @logger = ::Fluent::Logger::FluentLogger.new(logger)
+      elsif logger.respond_to?(:post)
+        @logger = logger
+      else
+        raise ArgumentError
+      end
       @default_formatter = Formatter.new
       @tag = tag || progname
     end
