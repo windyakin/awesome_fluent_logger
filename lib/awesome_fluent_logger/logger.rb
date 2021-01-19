@@ -5,7 +5,8 @@ require 'logger'
 
 module AwesomeFluentLogger
   class Logger < ::Logger
-    def initialize(fluent: nil, level: DEBUG, progname: nil, formatter: nil, datetime_format: nil, tag: nil)
+    attr_reader :logger
+    def initialize(fluent: nil, level: DEBUG, progname: nil, formatter: nil, datetime_format: nil)
       super(nil, 0, 0, level: level, progname: progname, formatter: formatter, datetime_format: datetime_format)
       if fluent.is_a?(Hash)
         @logger = ::Fluent::Logger::FluentLogger.new(fluent[:tag_prefix], **fluent)
@@ -15,7 +16,7 @@ module AwesomeFluentLogger
         raise ArgumentError
       end
       @default_formatter = Formatter.new
-      @tag = tag || progname
+      @tag = fluent[:tag_prefix] || progname
     end
 
     def add(severity, message = nil, progname = nil)
