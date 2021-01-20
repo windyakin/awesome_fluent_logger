@@ -13,6 +13,14 @@ module AwesomeFluentLogger
       }
     end
 
+    def datetime_format=(format)
+      if format == '%iso8601'
+        @datetime_format = '%Y-%m-%dT%H:%M:%S%:z'
+      else
+        @datetime_format = format
+      end
+    end
+
     protected
 
     def format_datetime(time)
