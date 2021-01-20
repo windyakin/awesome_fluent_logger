@@ -8,16 +8,18 @@ module AwesomeFluentLogger
     attr_reader :logger
     def initialize(fluent: nil, level: DEBUG, progname: nil, formatter: nil, datetime_format: nil)
       super(nil, 0, 0, level: level, progname: progname, formatter: formatter, datetime_format: datetime_format)
+
       if fluent.is_a?(Hash)
-        @logger = ::Fluent::Logger::FluentLogger.new(fluent[:tag_prefix], **fluent)
+        tag_prefix = fluent.fetch(:tag_prefix, progname)
+        @logger = ::Fluent::Logger::FluentLogger.new(tag_prefix, **fluent)
       elsif fluent.respond_to?(:post)
-        @logger = logger
+        @logger = fluent
       else
         raise ArgumentError
       end
+
       @default_formatter = Formatter.new
       @default_formatter.datetime_format = datetime_format
-      @tag = fluent[:tag_prefix] || progname
     end
 
     def add(severity, message = nil, progname = nil)
@@ -45,12 +47,12 @@ module AwesomeFluentLogger
         data = {data: data}
       end
 
-      @logger.post(@tag, data)
+      @logger.post(nil, data)
       true
     end
 
     def <<(msg)
-      @logger&.post(@tag, msg)
+      @logger&.post(nil, msg)
     end
 
     def close
