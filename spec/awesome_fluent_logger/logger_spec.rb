@@ -12,12 +12,13 @@ RSpec.describe AwesomeFluentLogger::Logger do
   class MockFluentLogger
     attr_accessor :logs
 
-    def initialize
+    def initialize(tag_prefix = nil)
+      @tag_prefix = tag_prefix
       @logs = []
     end
 
     def post(tag, msg)
-      logs << [tag, msg.dup]
+      logs << [tag || @tag_prefix, msg.dup]
     end
 
     def clear
@@ -31,11 +32,21 @@ RSpec.describe AwesomeFluentLogger::Logger do
     end
   end
 
-  let(:logger) { AwesomeFluentLogger.new(fluent_logger, progname: progname, level: level, tag: tag) }
-  let(:fluent_logger) { MockFluentLogger.new }
+  let(:logger) { AwesomeFluentLogger.new(fluent: fluent_logger, progname: progname, level: level) }
+  let(:fluent_logger) { MockFluentLogger.new(tag) }
   let(:progname) { 'progname' }
-  let(:tag) { 'rspec' }
   let(:level) { Logger::INFO }
+  let(:tag) { 'rspec' }
+
+  describe 'initialize argument :fluent' do
+    context 'is a Hash paramater' do
+      subject { AwesomeFluentLogger.new(fluent: { host: 'fluentd', port: 24224 }) }
+      it 'then call fluent-logger initialize' do
+        expect(Fluent::Logger::FluentLogger).to receive(:new).with(nil, { host: 'fluentd', port: 24224 })
+        subject
+      end
+    end
+  end
 
   describe 'the log level' do
     context 'is higher than the configured level' do
@@ -72,6 +83,25 @@ RSpec.describe AwesomeFluentLogger::Logger do
     it 'given block' do
       logger.info { "message in block" }
       expect(fluent_logger.logs).to match([["rspec", {progname: progname, severity: 'INFO', message: 'message in block', time: time}]])
+    end
+  end
+
+  describe 'formatter' do
+    context 'not specific datetime_format' do
+      let(:logger) { AwesomeFluentLogger.new(fluent: fluent_logger) }
+      it 'then timestamp format is original format' do
+        logger.info 'hello world'
+        expect(fluent_logger.logs).to match([["rspec", {progname: nil, severity: 'INFO', message: 'hello world', time: time}]])
+      end
+    end
+
+    context 'set datetime_format %iso8601' do
+      let(:logger) { AwesomeFluentLogger.new(fluent: fluent_logger, datetime_format: '%iso8601') }
+
+      it 'then timestamp format is ISO8601' do
+        logger.info 'hello world'
+        expect(fluent_logger.logs).to match([["rspec", {progname: nil, severity: 'INFO', message: 'hello world', time: '2020-02-10T12:34:56+00:00'}]])
+      end
     end
   end
 end
