@@ -41,13 +41,15 @@ module AwesomeFluentLogger
         end
       end
 
-      data = format_message(format_severity(severity), Time.now, progname, message)
+      formatted_severity = format_severity(severity)
+
+      data = format_message(formatted_severity, Time.now, progname, message)
 
       unless data.is_a?(Hash)
         data = {data: data}
       end
 
-      @logger.post(nil, data)
+      @logger.post(formatted_severity.downcase, data)
       true
     end
 
