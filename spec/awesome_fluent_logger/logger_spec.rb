@@ -12,13 +12,13 @@ RSpec.describe AwesomeFluentLogger::Logger do
   class MockFluentLogger
     attr_accessor :logs
 
-    def initialize(tag_prefix = nil)
+    def initialize(tag_prefix = nil, **_kvargs)
       @tag_prefix = tag_prefix
       @logs = []
     end
 
     def post(tag, msg)
-      logs << [tag || @tag_prefix, msg.dup]
+      logs << [[@tag_prefix, tag].join('.'), msg.dup]
     end
 
     def clear
@@ -32,9 +32,8 @@ RSpec.describe AwesomeFluentLogger::Logger do
     end
   end
 
-  let(:logger) { AwesomeFluentLogger.new(fluent: fluent_logger, progname: progname, level: level) }
+  let(:logger) { AwesomeFluentLogger.new(fluent: fluent_logger, level: level) }
   let(:fluent_logger) { MockFluentLogger.new(tag) }
-  let(:progname) { 'progname' }
   let(:level) { Logger::INFO }
   let(:tag) { 'rspec' }
 
@@ -52,22 +51,22 @@ RSpec.describe AwesomeFluentLogger::Logger do
     context 'is higher than the configured level' do
       it 'with :unknown' do
         logger.unknown 'hello world'
-        expect(fluent_logger.logs).to match([["rspec", {progname: progname, severity: 'ANY', message: 'hello world', time: time}]])
+        expect(fluent_logger.logs).to match([["rspec.any", { progname: nil, severity: 'ANY', message: 'hello world', time: time }]])
       end
 
       it 'with :fatal' do
         logger.fatal 'hello world'
-        expect(fluent_logger.logs).to match([["rspec", {progname: progname, severity: 'FATAL', message: 'hello world', time: time}]])
+        expect(fluent_logger.logs).to match([["rspec.fatal", { progname: nil, severity: 'FATAL', message: 'hello world', time: time }]])
       end
 
       it 'with :warn' do
         logger.warn 'hello world'
-        expect(fluent_logger.logs).to match([["rspec", {progname: progname, severity: 'WARN', message: 'hello world', time: time}]])
+        expect(fluent_logger.logs).to match([["rspec.warn", { progname: nil, severity: 'WARN', message: 'hello world', time: time }]])
       end
 
       it 'with :info' do
         logger.info 'hello world'
-        expect(fluent_logger.logs).to match([["rspec", {progname: progname, severity: 'INFO', message: 'hello world', time: time}]])
+        expect(fluent_logger.logs).to match([["rspec.info", { progname: nil, severity: 'INFO', message: 'hello world', time: time }]])
       end
     end
 
@@ -79,10 +78,41 @@ RSpec.describe AwesomeFluentLogger::Logger do
     end
   end
 
+  describe 'the tag' do
+    context 'given tag_prefix parasms' do
+      subject(:logger) { AwesomeFluentLogger.new(fluent: { tag_prefix: tag }) }
+      let(:tag) { 'tagging' }
+
+      specify 'includes fluent-logger initialize args' do
+        expect(Fluent::Logger::FluentLogger).to receive(:new).with(tag, { tag_prefix: tag }).and_return(fluent_logger)
+        subject
+      end
+
+      it 'then add tag to prefix' do
+        allow(Fluent::Logger::FluentLogger).to receive(:new).and_return(fluent_logger)
+        subject
+        logger.info 'message'
+        expect(fluent_logger.logs).to match([["#{tag}.info", { progname: nil, severity: 'INFO', message: 'message', time: time }]])
+      end
+
+      context 'add progname' do
+        subject(:logger) { AwesomeFluentLogger.new(fluent: { tag_prefix: tag }, progname: progname) }
+        let(:progname) { 'rspec' }
+
+        specify 'then add tags to prefix' do
+          allow(Fluent::Logger::FluentLogger).to receive(:new).and_return(fluent_logger)
+          subject
+          logger.info 'message'
+          expect(fluent_logger.logs).to match([["#{tag}.#{progname}.info", { progname: progname, severity: 'INFO', message: 'message', time: time }]])
+        end
+      end
+    end
+  end
+
   describe 'the message' do
     it 'given block' do
       logger.info { "message in block" }
-      expect(fluent_logger.logs).to match([["rspec", {progname: progname, severity: 'INFO', message: 'message in block', time: time}]])
+      expect(fluent_logger.logs).to match([["rspec.info", { progname: nil, severity: 'INFO', message: 'message in block', time: time }]])
     end
   end
 
@@ -91,7 +121,7 @@ RSpec.describe AwesomeFluentLogger::Logger do
       let(:logger) { AwesomeFluentLogger.new(fluent: fluent_logger) }
       it 'then timestamp format is original format' do
         logger.info 'hello world'
-        expect(fluent_logger.logs).to match([["rspec", {progname: nil, severity: 'INFO', message: 'hello world', time: time}]])
+        expect(fluent_logger.logs).to match([["rspec.info", {progname: nil, severity: 'INFO', message: 'hello world', time: time}]])
       end
     end
 
@@ -100,7 +130,7 @@ RSpec.describe AwesomeFluentLogger::Logger do
 
       it 'then timestamp format is ISO8601' do
         logger.info 'hello world'
-        expect(fluent_logger.logs).to match([["rspec", {progname: nil, severity: 'INFO', message: 'hello world', time: '2020-02-10T12:34:56+00:00'}]])
+        expect(fluent_logger.logs).to match([["rspec.info", {progname: nil, severity: 'INFO', message: 'hello world', time: '2020-02-10T12:34:56+00:00'}]])
       end
     end
   end

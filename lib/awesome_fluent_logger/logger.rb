@@ -10,7 +10,7 @@ module AwesomeFluentLogger
       super(nil, 0, 0, level: level, progname: progname, formatter: formatter, datetime_format: datetime_format)
 
       if fluent.is_a?(Hash)
-        tag_prefix = fluent.fetch(:tag_prefix, progname)
+        tag_prefix = fluent.fetch(:tag_prefix, nil)
         @logger = ::Fluent::Logger::FluentLogger.new(tag_prefix, **fluent)
       elsif fluent.respond_to?(:post)
         @logger = fluent
@@ -49,7 +49,9 @@ module AwesomeFluentLogger
         data = {data: data}
       end
 
-      @logger.post(formatted_severity.downcase, data)
+      tag = [progname&.+('.'), formatted_severity.downcase].join
+
+      @logger.post(tag, data)
       true
     end
 
