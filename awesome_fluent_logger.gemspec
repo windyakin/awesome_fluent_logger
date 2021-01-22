@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
     "You can use this library not only for Rails but also for pure-Ruby apps."
   spec.homepage      = "https://github.com/windyakin/awesome_fluent_logger"
   spec.license       = "MIT"
-  spec.required_ruby_version = Gem::Requirement.new(">= 2.3.0")
+  spec.required_ruby_version = Gem::Requirement.new(">= 2.5.0")
 
   spec.add_dependency 'fluent-logger', '~> 0.9'
 
