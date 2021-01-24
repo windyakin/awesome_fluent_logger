@@ -1,6 +1,8 @@
 # AwesomeFluentLogger
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/awesome_fluent_logger`. To experiment with that code, run `bin/console` for an interactive prompt.
+[![Gem Version](https://badge.fury.io/rb/awesome_fluent_logger.svg)](https://rubygems.org/gems/awesome_fluent_logger)
+
+This library can mimic Ruby's built-in Logger class to forward logs to Fluentd. You can use this library not only for Rails but also for pure-Ruby apps.
 
 ## Installation
 
@@ -47,17 +49,64 @@ Rails configure file (`config/application.rb` or `config/environments/{RAILS_ENV
 
 ```ruby
 logger = AwesomeFluentLogger.new(fluent: { host: 'localhost', port: 24224 })
-config.logger = ActiveSupport::TaggedLogging(logger)
+config.logger = ActiveSupport::TaggedLogging.new(logger)
 ```
 
-### Set fluent-logger instance
+### Can be set fluent-logger instance in initialize parameters
 
-`fluent` of initialize argument can be passed an instance of [fluent-logger](https://github.com/fluent/fluent-logger-ruby)
+`fluent` of initialize argument can be set an instance of [fluent-logger](https://github.com/fluent/fluent-logger-ruby)
 
 ```ruby
 fluent = Fluent::Logger.new(nil, host: 'localhost', port: 24224)
 logger = AwesomeFluentLogger.new(fluent: fluent)
 ```
+
+### Fluent tags
+
+If the initialize parameter `[:fluent][:tag_prefix]` is specified, it will be inserted at the beginning of the Fluentd tag.
+
+```ruby
+logger = AwesomeFluentLogger.new(fluent: { tag_prefix: 'kanan', host: 'localhost', port: 24224 })
+logger.info('ご機嫌いかがかなん？')
+```
+
+```
+2021-01-23 13:28:46.000000000 +0000 kanan.info: {"severity":"INFO", ...
+```
+
+The same effect is given by specifying `progname`.
+
+```ruby
+logger = AwesomeFluentLogger.new(fluent: { host: 'localhost', port: 24224 }, progname: 'chika')
+logger.info('かんかんみかん')
+```
+
+```
+2021-01-23 13:28:46.000000000 +0000 chika.info: {"severity":"INFO", ...
+```
+
+If both are specified, they will be nested. In this case, tag_prefix will be added first.
+
+```ruby
+logger = AwesomeFluentLogger.new(fluent: { tag_prefix: 'kanan', host: 'localhost', port: 24224 }, progname: 'chika')
+logger.info('2人は幼馴染です')
+```
+
+```
+2021-01-23 13:28:46.000000000 +0000 kanan.chika.info: {"severity":"INFO", ...
+```
+
+### Initialize parameters
+
+Other initialization parameters are based on the Logger class of the Ruby standard library.
+
+| key | default | example |
+|:---:|:----:|:-----|
+| `fluent` | `nil` | `{host: 'localhost', port: 24224}` or Fluent::Logger::FluentLogger instance |
+| `level` | `Logger::DEBUG` | `Logger::INFO` |
+| `progname` | `nil` | |
+| `formatter` | `nil` | Logger::Formatter type class instance |
+| `datetime_format` | `nil` | '%iso8601' or [`Time#strftime` format](https://docs.ruby-lang.org/en/master/Time.html#method-i-strftime) |
 
 ## Contributing
 
