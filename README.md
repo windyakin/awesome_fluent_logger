@@ -26,6 +26,8 @@ $ gem install awesome_fluent_logger
 
 ## Usage
 
+[シンプルに Fluentd にログ転送ができる RubyGem "awesome_fluent_logger" をつくった](https://windyakin.hateblo.jp/entry/2021/01/24/143242) (Japanese commentary)
+
 ### Tiny example
 
 Your Ruby program:
@@ -54,10 +56,10 @@ config.logger = ActiveSupport::TaggedLogging.new(logger)
 
 ### Can be set fluent-logger instance in initialize parameters
 
-`fluent` of initialize argument can be set an instance of [fluent-logger](https://github.com/fluent/fluent-logger-ruby)
+`:fluent` of initialize argument can be set an instance of [Fluent::Logger::FluentLogger](https://github.com/fluent/fluent-logger-ruby) class.
 
 ```ruby
-fluent = Fluent::Logger.new(nil, host: 'localhost', port: 24224)
+fluent = Fluent::Logger::FluentLogger.new(nil, socket_path: '/tmp/fluent.sock')
 logger = AwesomeFluentLogger.new(fluent: fluent)
 ```
 
@@ -100,13 +102,13 @@ logger.info('2人は幼馴染です')
 
 Other initialization parameters are based on the Logger class of the Ruby standard library.
 
-| key | default | example |
-|:---:|:----:|:-----|
-| `fluent` | `nil` | `{host: 'localhost', port: 24224}` or Fluent::Logger::FluentLogger instance |
-| `level` | `Logger::DEBUG` | `Logger::INFO` |
-| `progname` | `nil` | |
-| `formatter` | `nil` | Logger::Formatter type class instance |
-| `datetime_format` | `nil` | '%iso8601' or [`Time#strftime` format](https://docs.ruby-lang.org/en/master/Time.html#method-i-strftime) |
+| Key | Default | Descriptions |
+|:---|:---|:---|
+| `fluent` | (none) | `Fluent::Logger::FluentLogger` initialize paramater hash or `Fluent::Logger::FluentLogger` class instance |
+| `level` | `Logger::DEBUG` | [Logger severity level constant](https://docs.ruby-lang.org/en/master/Logger.html) |
+| `progname` | `nil` | Program name to include in log messages **and Fluentd tag** |
+| `formatter` | [`AwesomeFluentLogger::Formatter`](lib/awesome_fluent_logger/formatter.rb) | Inherited `Logger::Formatter` class instance |
+| `datetime_format` | `%Y-%m-%d %H:%M:%S.%6N %z` | `%iso8601` or [`Time#strftime` formatted text](https://docs.ruby-lang.org/en/master/Time.html#method-i-strftime) |
 
 ## Contributing
 
@@ -115,4 +117,4 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/[USERN
 
 ## License
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+[MIT License](LICENSE.txt)
