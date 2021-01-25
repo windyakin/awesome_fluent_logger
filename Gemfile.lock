@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    awesome_fluent_logger (0.1.0)
+    awesome_fluent_logger (1.0.0)
       fluent-logger (~> 0.9)
 
 GEM
