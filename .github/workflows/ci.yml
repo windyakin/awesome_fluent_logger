@@ -11,10 +11,10 @@ jobs:
       fail-fast: true
       matrix:
         ruby-version:
-          - 2.5
-          - 2.6
-          - 2.7
-          - 3.0
+          - "2.5"
+          - "2.6"
+          - "2.7"
+          - "3.0"
 
     steps:
       - uses: actions/checkout@v2
@@ -29,7 +29,7 @@ jobs:
       - name: Setup Ruby v${{ matrix.ruby-version }}
         uses: actions/setup-ruby@v1
         with:
-          ruby_version: ${{ matrix.ruby-version }}
+          ruby-version: ${{ matrix.ruby-version }}
 
       - name: Install bundler
         run: gem install bundler -v "~> 1.17"
