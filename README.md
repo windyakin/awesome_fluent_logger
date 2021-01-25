@@ -1,8 +1,11 @@
 # AwesomeFluentLogger
 
-[![Gem Version](https://badge.fury.io/rb/awesome_fluent_logger.svg)](https://rubygems.org/gems/awesome_fluent_logger)
+[![Gem Version](https://img.shields.io/gem/v/awesome_fluent_logger.svg?color=orange&logo=rubygems)](https://rubygems.org/gems/awesome_fluent_logger)
+![ci](https://github.com/windyakin/awesome_fluent_logger/workflows/ci/badge.svg)
 
 This library can mimic Ruby's built-in Logger class to forward logs to Fluentd. You can use this library not only for Rails but also for pure-Ruby apps.
+
+Commentary: [シンプルに Fluentd にログ転送ができる RubyGem "awesome_fluent_logger" をつくった](https://windyakin.hateblo.jp/entry/2021/01/24/143242) (日本語/Japanese)
 
 ## Installation
 
@@ -25,8 +28,6 @@ $ gem install awesome_fluent_logger
 ```
 
 ## Usage
-
-[シンプルに Fluentd にログ転送ができる RubyGem "awesome_fluent_logger" をつくった](https://windyakin.hateblo.jp/entry/2021/01/24/143242) (Japanese commentary)
 
 ### Tiny example
 
