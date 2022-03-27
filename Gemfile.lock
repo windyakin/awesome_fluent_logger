@@ -34,7 +34,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.10.0)
     rspec-support (3.10.1)
-    timecop (0.9.4)
+    timecop (0.9.5)
 
 PLATFORMS
   ruby
